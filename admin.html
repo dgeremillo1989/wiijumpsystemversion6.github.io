@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiiJump - Admin Console</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 0; }
+        nav { background-color: #1e293b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ef4444; }
+        nav .logo { color: #22c55e; font-size: 1.6rem; font-weight: 800; text-decoration: none; }
+        nav .logo span { color: #06b6d4; }
+        nav a.back-link { color: #94a3b8; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .container { max-width: 1100px; margin: 3rem auto; padding: 0 1.5rem; }
+        section { background: #1e293b; padding: 2.5rem; border-radius: 12px; border: 1px solid #334155; margin-bottom: 2rem; }
+        h2 { color: #ffffff; margin-top: 0; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        p { color: #94a3b8; }
+        form { display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin-top: 15px; }
+        label { font-size: 14px; color: #94a3b8; font-weight: 600; }
+        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px; margin-top: 5px; }
+        .btn-group { margin-top: 2rem; display: flex; gap: 15px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; font-size: 14px; }
+        .btn-blue { background: #3b82f6; }
+        .btn-green { background: #22c55e; }
+        .btn-red { background: #ef4444; }
+        .error-msg { color: #ef4444; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">Wii<span>Jump</span> — Corporate</a>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <a id="logoutLink" class="back-link" onclick="logout()" style="display:none; color: #ef4444;">Sign Out</a>
+            <a href="index.html" class="back-link">← Main Menu</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Auth Barrier Block -->
+        <div id="loginSection">
+            <section>
+                <h2>Administrative Credentials Verification</h2>
+                <form id="loginForm">
+                    <label>Username (Default: admin)<input type="text" id="username" required></label>
+                    <label>Password (Default: admin123)<input type="password" id="password" required></label>
+                    <button type="submit" class="btn btn-red">Decrypt Console Node</button>
+                    <div id="loginError" class="error-msg"></div>
+                </form>
+            </section>
+        </div>
+
+        <!-- System Execution Console -->
+        <div id="adminConsoleSection" style="display: none;">
+            <section>
+                <h2>System Control & Analytical Infrastructure</h2>
+                <p>Compile facility operation statistics or perform global database wipe protocols.</p>
+                <div class="btn-group">
+                    <button onclick="exportCSV()" class="btn btn-green">Download Spreadsheet (.CSV)</button>
+                    <button onclick="clearSystem()" class="btn btn-red">Purge Local Cache Data</button>
+                </div>
+            </section>
+
+            <section style="max-width: 400px;">
+                <h2>Modify Admin Root Secret Key</h2>
+                <form id="changePasswordForm">
+                    <label>Current Password<input type="password" id="currPass" required></label>
+                    <label>New Secret Key Password<input type="password" id="newPass" required></label>
+                    <button type="submit" class="btn btn-blue">Commit Structural Key Update</button>
+                    <div id="passMsg" style="font-weight: bold; margin-top: 5px;"></div>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        if (!localStorage.getItem('admin_pass')) localStorage.setItem('admin_pass', 'admin123');
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const correctPass = localStorage.getItem('admin_pass');
+
+            if (user === 'admin' && pass === correctPass) {
+                sessionStorage.setItem('admin_session', 'authenticated');
+                checkSession();
+            } else {
+                document.getElementById('loginError').innerText = "Access denied. Invalid signature sequence.";
+            }
+        });
+
+        document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const curr = document.getElementById('currPass').value;
+            const nxt = document.getElementById('newPass').value;
+            const stored = localStorage.getItem('admin_pass');
+            const msgDiv = document.getElementById('passMsg');
+
+            if (curr === stored) {
+                localStorage.setItem('admin_pass', nxt);
+                msgDiv.style.color = "#22c55e";
+                msgDiv.innerText = "Root key overwritten cleanly.";
+                this.reset();
+            } else {
+                msgDiv.style.color = "#ef4444";
+                msgDiv.innerText = "Decryption mismatch on active key field.";
+            }
+        });
+
+        function checkSession() {
+            if (sessionStorage.getItem('admin_session') === 'authenticated') {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminConsoleSection').style.display = 'block';
+                document.getElementById('logoutLink').style.display = 'block';
+            } else {
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('adminConsoleSection').style.display = 'none';
+                document.getElementById('logoutLink').style.display = 'none';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('admin_session');
+            checkSession();
+        }
+
+        function exportCSV() {
+            const sessions = JSON.parse(localStorage.getItem('wii_sessions')) || [];
+            if(sessions.length === 0) {
+                alert("The logs are currently empty. No active datasets found to export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Session ID,Customer Name,Phone Line,Selected Package,Check-In Date,Session Status\n";
+            sessions.forEach(s => {
+                const readableDate = new Date(s.checkIn).toLocaleString();
+                csvContent += `"${s.id}","${s.name}","${s.phone}","${s.minutes === 9999 ? 'Unlimited' : s.minutes + ' mins'}","${readableDate}","${s.status}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const downloadAnchor = document.createElement("a");
+            downloadAnchor.setAttribute("href", encodedUri);
+            downloadAnchor.setAttribute("download", "wiijump_audit_metrics.csv");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            document.body.removeChild(downloadAnchor);
+        }
+
+        function clearSystem() {
+            if(confirm("CRITICAL WARNING: This action permanently removes all historical performance registries and logs. Proceed?")) {
+                localStorage.removeItem('wii_sessions');
+                alert("System tables purged and normalized.");
+            }
+        }
+
+        checkSession();
+    </script>
+</body>
+</html>
