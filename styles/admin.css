@@ -1,0 +1,488 @@
+/* ============================================================================
+   WiiJump Admin Console - Stylesheet
+   ============================================================================ */
+
+:root {
+    --color-bg-dark: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-border: #334155;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #94a3b8;
+    --color-accent-green: #22c55e;
+    --color-accent-cyan: #06b6d4;
+    --color-accent-red: #ef4444;
+    --color-accent-blue: #3b82f6;
+    --color-warning: #f59e0b;
+    --transition: all 0.3s ease;
+}
+
+/* ============================================================================
+   GLOBAL STYLES
+   ============================================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-primary);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* ============================================================================
+   NAVIGATION
+   ============================================================================ */
+
+nav {
+    background-color: var(--color-bg-secondary);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--color-accent-red);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+nav .logo {
+    color: var(--color-accent-green);
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+nav .logo:hover {
+    color: var(--color-accent-cyan);
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+}
+
+nav .logo span {
+    color: var(--color-accent-cyan);
+}
+
+.nav-right {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.back-link {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+.back-link:hover,
+.back-link:focus {
+    color: var(--color-text-primary);
+    background-color: rgba(148, 163, 184, 0.1);
+    outline: 2px solid var(--color-accent-cyan);
+    outline-offset: 2px;
+}
+
+.logout-link {
+    color: var(--color-accent-red);
+}
+
+.logout-link:hover,
+.logout-link:focus {
+    background-color: rgba(239, 68, 68, 0.1);
+    outline-color: var(--color-accent-red);
+}
+
+/* ============================================================================
+   CONTAINER & SECTIONS
+   ============================================================================ */
+
+.container {
+    max-width: 1100px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+}
+
+section {
+    background: var(--color-bg-secondary);
+    padding: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h2 {
+    color: var(--color-text-primary);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+p {
+    color: var(--color-text-secondary);
+    margin: 0.5rem 0;
+}
+
+/* ============================================================================
+   FORMS
+   ============================================================================ */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+label::after {
+    content: '*';
+    color: var(--color-accent-red);
+    margin-left: 3px;
+}
+
+input {
+    background: var(--color-bg-dark);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--color-accent-cyan);
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+input:focus-visible {
+    border-color: var(--color-accent-cyan);
+}
+
+input[type="password"]:autofill {
+    -webkit-autofill: none !important;
+    -webkit-text-fill-color: var(--color-text-primary) !important;
+}
+
+input:invalid:not(:placeholder-shown) {
+    border-color: var(--color-accent-red);
+}
+
+input:valid:not(:placeholder-shown) {
+    border-color: var(--color-accent-green);
+}
+
+.form-hint {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-top: 2px;
+}
+
+/* ============================================================================
+   PASSWORD STRENGTH METER
+   ============================================================================ */
+
+.password-strength {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.strength-bar {
+    height: 4px;
+    background: var(--color-border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.strength-bar::after {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: var(--color-text-secondary);
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-text {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--color-text-primary);
+    font-size: 14px;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    user-select: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--color-accent-cyan);
+    outline-offset: 2px;
+}
+
+.btn-blue {
+    background: var(--color-accent-blue);
+}
+
+.btn-blue:hover {
+    background: #2563eb;
+}
+
+.btn-green {
+    background: var(--color-accent-green);
+}
+
+.btn-green:hover {
+    background: #16a34a;
+}
+
+.btn-red {
+    background: var(--color-accent-red);
+}
+
+.btn-red:hover {
+    background: #dc2626;
+}
+
+.btn-group {
+    margin-top: 2rem;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* ============================================================================
+   MESSAGES & ALERTS
+   ============================================================================ */
+
+.error-msg {
+    color: var(--color-accent-red);
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid var(--color-accent-red);
+    border-radius: 4px;
+    display: none;
+}
+
+.error-msg:not(:empty) {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+.warning-msg {
+    color: var(--color-warning);
+    font-weight: 600;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background-color: rgba(245, 158, 11, 0.1);
+    border-left: 3px solid var(--color-warning);
+    border-radius: 4px;
+}
+
+.status-msg {
+    font-weight: 600;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+    display: none;
+}
+
+.status-msg.success {
+    color: var(--color-accent-green);
+    background-color: rgba(34, 197, 94, 0.1);
+    border-left-color: var(--color-accent-green);
+}
+
+.status-msg.error {
+    color: var(--color-accent-red);
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left-color: var(--color-accent-red);
+}
+
+.status-msg:not(:empty) {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.password-section {
+    max-width: 400px;
+}
+
+/* ============================================================================
+   ACCESSIBILITY
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .nav-right {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .container {
+        padding: 0 1rem;
+        margin: 1.5rem auto;
+    }
+
+    section {
+        padding: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .password-section {
+        max-width: 100%;
+    }
+
+    form {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    nav .logo {
+        font-size: 1.3rem;
+    }
+
+    .container {
+        margin: 1rem auto;
+    }
+
+    section {
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.1rem;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
+
+/* ============================================================================
+   DARK MODE SUPPORT (for future enhancement)
+   ============================================================================ */
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --color-bg-dark: #f8fafc;
+        --color-bg-secondary: #e2e8f0;
+        --color-border: #cbd5e1;
+        --color-text-primary: #0f172a;
+        --color-text-secondary: #475569;
+    }
+
+    input {
+        background: #ffffff;
+        border-color: var(--color-border);
+    }
+}
