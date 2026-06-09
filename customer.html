@@ -5,127 +5,529 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WiiJump - Customer Kiosk</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 0; }
-        nav { background-color: #1e293b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #22c55e; }
-        nav .logo { color: #22c55e; font-size: 1.6rem; font-weight: 800; text-decoration: none; }
-        nav .logo span { color: #06b6d4; }
-        nav a.back-link { color: #94a3b8; text-decoration: none; font-weight: 600; }
-        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; }
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
-        section { background: #1e293b; padding: 2rem; border-radius: 12px; border: 1px solid #334155; height: fit-content; }
-        h2 { color: white; margin-top: 0; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        /* ===== CSS Variables ===== */
+        :root {
+            --bg-dark: #0f172a;
+            --bg-secondary: #1e293b;
+            --border-color: #334155;
+            --text-muted: #94a3b8;
+            --accent-green: #22c55e;
+            --accent-cyan: #06b6d4;
+            --error-red: #ef4444;
+            --transition: all 0.3s ease;
+        }
+
+        /* ===== Base Styles ===== */
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-dark);
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ===== Navigation ===== */
+        nav {
+            background-color: var(--bg-secondary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-green);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        nav .logo {
+            color: var(--accent-green);
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        nav .logo:hover { opacity: 0.8; }
+        nav .logo span { color: var(--accent-cyan); }
+
+        nav a.back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        nav a.back-link:hover {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: var(--accent-green);
+        }
+
+        /* ===== Layout ===== */
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        /* ===== Sections ===== */
+        section {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            height: fit-content;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: white;
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        /* ===== Forms ===== */
         form { display: flex; flex-direction: column; gap: 15px; }
-        label { font-size: 14px; color: #94a3b8; font-weight: 600; }
-        input, select { background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; border-radius: 6px; font-size: 14px; margin-top: 5px; }
-        .btn { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; font-size: 16px; background: #22c55e; }
-        table { width: 100%; border-collapse: collapse; background: #0f172a; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px 15px; border-bottom: 1px solid #334155; text-align: left; }
-        th { background: #1e293b; color: #06b6d4; }
-        .status-active { color: #22c55e; font-weight: bold; }
-        .status-timeout { color: #ef4444; font-weight: bold; animation: flash 1s infinite alternate; }
-        .status-checkedout { color: #64748b; }
-        .msg { color: #22c55e; font-weight: bold; margin-top: 10px; text-align: center; }
-        @keyframes flash { from { opacity: 1; } to { opacity: 0.4; } }
+
+        label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+        }
+
+        input, select {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-top: 5px;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
+        }
+
+        input:invalid { border-color: var(--error-red); }
+
+        /* ===== Buttons ===== */
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            background: var(--accent-green);
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .btn:hover { background: #16a34a; transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+
+        /* ===== Table ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg-secondary);
+            color: var(--accent-cyan);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        tr:hover { background-color: rgba(34, 197, 94, 0.05); }
+
+        /* ===== Status Styles ===== */
+        .status-badge {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .status-active {
+            color: #22c55e;
+            background-color: rgba(34, 197, 94, 0.1);
+        }
+
+        .status-timeout {
+            color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.1);
+            animation: flash 1s infinite alternate;
+        }
+
+        .status-checked-out {
+            color: #64748b;
+            background-color: rgba(100, 116, 139, 0.1);
+        }
+
+        /* ===== Messaging ===== */
+        .msg {
+            color: var(--accent-green);
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: center;
+            padding: 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 6px;
+            border-left: 4px solid var(--accent-green);
+            min-height: 20px;
+        }
+
+        .msg.error {
+            color: var(--error-red);
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: var(--error-red);
+        }
+
+        /* ===== Animations ===== */
+        @keyframes flash {
+            from { opacity: 1; }
+            to { opacity: 0.4; }
+        }
+
+        /* ===== Checkout Button in Table ===== */
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: var(--accent-cyan);
+            color: var(--bg-dark);
+        }
+
+        .btn-small:hover { background: #0891b2; }
+
+        /* ===== Accessibility ===== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
     </style>
 </head>
 <body>
-    <nav>
+    <nav role="navigation" aria-label="Main navigation">
         <a href="index.html" class="logo">Wii<span>Jump</span> — Kiosk</a>
         <a href="index.html" class="back-link">← Main Menu</a>
     </nav>
+
     <div class="container">
-        <section>
-            <h2>Guest Registration</h2>
-            <form id="regForm">
-                <label>First Name<input type="text" id="firstName" placeholder="Enter your name" required></label>
-                <label>Phone Number<input type="tel" id="phone" pattern="09[0-9]{9}" placeholder="09XXXXXXXXX" required></label>
-                <label>Select Pass Package
-                    <select id="packageMinutes">
+        <!-- Registration Section -->
+        <section aria-labelledby="registration-heading">
+            <h2 id="registration-heading">Guest Registration</h2>
+            <form id="regForm" novalidate>
+                <label for="firstName">
+                    First Name
+                    <input
+                        type="text"
+                        id="firstName"
+                        placeholder="Enter your name"
+                        maxlength="50"
+                        required
+                        aria-required="true"
+                        aria-describedby="firstName-error"
+                    >
+                    <span id="firstName-error" class="error-message sr-only"></span>
+                </label>
+
+                <label for="phone">
+                    Phone Number
+                    <input
+                        type="tel"
+                        id="phone"
+                        pattern="09[0-9]{9}"
+                        placeholder="09XXXXXXXXX"
+                        required
+                        aria-required="true"
+                        aria-describedby="phone-error"
+                    >
+                    <span id="phone-error" class="error-message sr-only"></span>
+                </label>
+
+                <label for="packageMinutes">
+                    Select Pass Package
+                    <select id="packageMinutes" required aria-required="true">
+                        <option value="">-- Choose a package --</option>
                         <option value="60">1 Hour Access Pass</option>
                         <option value="120">2 Hour Access Pass</option>
                         <option value="9999">Unlimited Session Pass</option>
                     </select>
                 </label>
-                <button type="submit" class="btn">Check In & Play</button>
+
+                <button type="submit" class="btn" id="submitBtn">Check In & Play</button>
             </form>
-            <div id="regMsg" class="msg"></div>
+            <div id="regMsg" class="msg" role="alert" aria-live="polite"></div>
         </section>
 
-        <section>
-            <h2>Live Session Monitor</h2>
-            <table>
-                <thead>
-                    <tr><th>Name</th><th>Package</th><th>Time Remaining</th><th>Status</th></tr>
-                </thead>
-                <tbody id="sessionsTable"></tbody>
-            </table>
+        <!-- Live Session Monitor Section -->
+        <section aria-labelledby="monitor-heading">
+            <h2 id="monitor-heading">Live Session Monitor</h2>
+            <div style="overflow-x: auto;">
+                <table role="grid" aria-label="Active gaming sessions">
+                    <thead>
+                        <tr role="row">
+                            <th role="columnheader">Name</th>
+                            <th role="columnheader">Package</th>
+                            <th role="columnheader">Time Remaining</th>
+                            <th role="columnheader">Status</th>
+                            <th role="columnheader">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionsTable"></tbody>
+                </table>
+            </div>
         </section>
     </div>
 
     <script>
-        document.getElementById('regForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const sessions = JSON.parse(localStorage.getItem('wii_sessions')) || [];
-            
-            const newSession = {
-                id: 'SESS-' + Date.now(),
-                name: document.getElementById('firstName').value,
-                phone: document.getElementById('phone').value,
-                minutes: parseInt(document.getElementById('packageMinutes').value),
-                checkIn: Date.now(),
-                status: 'Active'
-            };
+        // ===== Configuration Constants =====
+        const CONFIG = {
+            STORAGE_KEY: 'wii_sessions',
+            UPDATE_INTERVAL: 1000,
+            UNLIMITED_MINUTES: 9999,
+            MESSAGE_TIMEOUT: 4000,
+            PHONE_REGEX: /^09\d{9}$/,
+            MAX_SESSIONS_STORAGE: 500
+        };
 
-            sessions.push(newSession);
-            localStorage.setItem('wii_sessions', JSON.stringify(sessions));
-            this.reset();
-            document.getElementById('regMsg').innerText = "Registration complete! Jump on in.";
-            setTimeout(() => document.getElementById('regMsg').innerText = "", 4000);
-            updateTable();
-        });
+        // ===== Session Management Service =====
+        const SessionService = {
+            getSessions() {
+                try {
+                    const data = localStorage.getItem(CONFIG.STORAGE_KEY);
+                    return data ? JSON.parse(data) : [];
+                } catch (error) {
+                    console.error('Error parsing sessions:', error);
+                    return [];
+                }
+            },
 
-        function updateTable() {
-            const tbody = document.getElementById('sessionsTable');
-            const sessions = JSON.parse(localStorage.getItem('wii_sessions')) || [];
-            tbody.innerHTML = '';
+            saveSessions(sessions) {
+                try {
+                    // Prevent unbounded storage growth
+                    const trimmedSessions = sessions.slice(-CONFIG.MAX_SESSIONS_STORAGE);
+                    localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(trimmedSessions));
+                } catch (error) {
+                    console.error('Error saving sessions:', error);
+                }
+            },
 
-            sessions.forEach(s => {
-                let remainingStr = '00:00:00';
-                let currentStatus = s.status;
+            createSession(name, phone, packageMinutes) {
+                return {
+                    id: 'SESS-' + Date.now(),
+                    name: this.sanitize(name),
+                    phone: phone, // In production: hash or don't store
+                    minutes: parseInt(packageMinutes),
+                    checkIn: Date.now(),
+                    status: 'Active',
+                    checkedOut: false
+                };
+            },
 
-                if (currentStatus !== 'Checked-Out') {
-                    if (s.minutes === 9999) {
-                        remainingStr = 'Unlimited';
-                    } else {
-                        const elapsed = Date.now() - s.checkIn;
-                        const allowed = s.minutes * 60 * 1000;
-                        const remainingMs = allowed - elapsed;
+            checkoutSession(sessionId) {
+                const sessions = this.getSessions();
+                const session = sessions.find(s => s.id === sessionId);
+                if (session) {
+                    session.status = 'Checked-Out';
+                    session.checkedOut = true;
+                    this.saveSessions(sessions);
+                    return true;
+                }
+                return false;
+            },
 
-                        if (remainingMs <= 0) {
-                            remainingStr = '00:00:00';
-                            currentStatus = 'Timeout';
-                        } else {
-                            const secs = Math.floor((remainingMs / 1000) % 60).toString().padStart(2, '0');
-                            const mins = Math.floor((remainingMs / (1000 * 60)) % 60).toString().padStart(2, '0');
-                            const hours = Math.floor(remainingMs / (1000 * 60 * 60)).toString().padStart(2, '0');
-                            remainingStr = `${hours}:${mins}:${secs}`;
-                        }
-                    }
+            sanitize(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        };
+
+        // ===== Time Formatting Utility =====
+        const TimeFormatter = {
+            formatRemaining(remainingMs) {
+                if (remainingMs <= 0) return '00:00:00';
+
+                const totalSeconds = Math.floor(remainingMs / 1000);
+                const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+                const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+                const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+
+                return `${hours}:${minutes}:${seconds}`;
+            }
+        };
+
+        // ===== Session Status Calculator =====
+        const StatusCalculator = {
+            calculate(session) {
+                if (session.checkedOut) return 'Checked-Out';
+
+                if (session.minutes === CONFIG.UNLIMITED_MINUTES) {
+                    return { status: 'Active', remaining: 'Unlimited' };
                 }
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><b>${s.name}</b></td>
-                    <td>${s.minutes === 9999 ? 'Unlimited' : s.minutes + 'm'}</td>
-                    <td style="font-family:monospace; font-size:15px; color:#06b6d4;">${remainingStr}</td>
-                    <td><span class="status-${currentStatus.toLowerCase().replace('-','')}">${currentStatus}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+                const elapsed = Date.now() - session.checkIn;
+                const allowed = session.minutes * 60 * 1000;
+                const remainingMs = allowed - elapsed;
 
-        setInterval(updateTable, 1000);
-        updateTable();
+                const remaining = remainingMs <= 0 ? '00:00:00' : TimeFormatter.formatRemaining(remainingMs);
+                const status = remainingMs <= 0 ? 'Timeout' : 'Active';
+
+                return { status, remaining };
+            }
+        };
+
+        // ===== UI Controller =====
+        const UIController = {
+            updateTable() {
+                const tbody = document.getElementById('sessionsTable');
+                const sessions = SessionService.getSessions();
+                tbody.innerHTML = '';
+
+                if (sessions.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = '<td colspan="5" style="text-align:center; color: var(--text-muted);">No active sessions</td>';
+                    tbody.appendChild(tr);
+                    return;
+                }
+
+                sessions.forEach(session => {
+                    const { status, remaining } = StatusCalculator.calculate(session);
+                    const statusClass = `status-${status.toLowerCase().replace('-', '-')}`;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><b>${session.name}</b></td>
+                        <td>${session.minutes === CONFIG.UNLIMITED_MINUTES ? 'Unlimited' : session.minutes + 'm'}</td>
+                        <td style="font-family:monospace; font-size:15px; color:var(--accent-cyan);">${remaining}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            ${!session.checkedOut ? `<button class="btn btn-small" data-session-id="${session.id}" onclick="UIController.checkoutSession('${session.id}')">Check Out</button>` : '—'}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            },
+
+            checkoutSession(sessionId) {
+                if (SessionService.checkoutSession(sessionId)) {
+                    this.showMessage('Session checked out successfully!', false);
+                    this.updateTable();
+                } else {
+                    this.showMessage('Error checking out session', true);
+                }
+            },
+
+            showMessage(text, isError = false) {
+                const msgDiv = document.getElementById('regMsg');
+                msgDiv.textContent = text;
+                msgDiv.classList.toggle('error', isError);
+
+                if (msgDiv.textContent) {
+                    setTimeout(() => {
+                        msgDiv.textContent = '';
+                        msgDiv.classList.remove('error');
+                    }, CONFIG.MESSAGE_TIMEOUT);
+                }
+            },
+
+            resetForm() {
+                document.getElementById('regForm').reset();
+                document.getElementById('packageMinutes').value = '';
+            }
+        };
+
+        // ===== Form Validation =====
+        const FormValidator = {
+            validate(firstName, phone, packageMinutes) {
+                const errors = [];
+
+                if (!firstName || firstName.trim().length === 0) {
+                    errors.push('First name is required');
+                }
+
+                if (!CONFIG.PHONE_REGEX.test(phone)) {
+                    errors.push('Phone number must be 09XXXXXXXXX format');
+                }
+
+                if (!packageMinutes) {
+                    errors.push('Please select a pass package');
+                }
+
+                return { valid: errors.length === 0, errors };
+            }
+        };
+
+        // ===== Event Listeners =====
+        document.getElementById('regForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const packageMinutes = document.getElementById('packageMinutes').value;
+
+            const validation = FormValidator.validate(firstName, phone, packageMinutes);
+
+            if (!validation.valid) {
+                UIController.showMessage(validation.errors[0], true);
+                return;
+            }
+
+            try {
+                const sessions = SessionService.getSessions();
+                const newSession = SessionService.createSession(firstName, phone, packageMinutes);
+                sessions.push(newSession);
+                SessionService.saveSessions(sessions);
+
+                UIController.showMessage('Registration complete! Jump on in.', false);
+                UIController.resetForm();
+                UIController.updateTable();
+            } catch (error) {
+                console.error('Registration error:', error);
+                UIController.showMessage('An error occurred during registration', true);
+            }
+        });
+
+        // ===== Initialization =====
+        setInterval(() => UIController.updateTable(), CONFIG.UPDATE_INTERVAL);
+        UIController.updateTable();
     </script>
 </body>
 </html>
