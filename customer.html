@@ -123,7 +123,13 @@
             box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
         }
 
-        input:invalid { border-color: var(--error-red); }
+        input:invalid:not(:placeholder-shown) { 
+            border-color: var(--error-red); 
+        }
+
+        input.input-invalid {
+            border-color: var(--error-red);
+        }
 
         /* ===== Buttons ===== */
         .btn {
@@ -177,18 +183,18 @@
             display: inline-block;
         }
 
-        .status-active {
+        .status-badge.status-active {
             color: #22c55e;
             background-color: rgba(34, 197, 94, 0.1);
         }
 
-        .status-timeout {
+        .status-badge.status-timeout {
             color: #ef4444;
             background-color: rgba(239, 68, 68, 0.1);
             animation: flash 1s infinite alternate;
         }
 
-        .status-checked-out {
+        .status-badge.status-checked-out {
             color: #64748b;
             background-color: rgba(100, 116, 139, 0.1);
         }
@@ -204,6 +210,11 @@
             border-radius: 6px;
             border-left: 4px solid var(--accent-green);
             min-height: 20px;
+            display: none;
+        }
+
+        .msg.show {
+            display: block;
         }
 
         .msg.error {
@@ -218,6 +229,18 @@
             to { opacity: 0.4; }
         }
 
+        /* ===== Table Utilities ===== */
+        .table-empty-message {
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .time-display {
+            font-family: monospace;
+            font-size: 15px;
+            color: var(--accent-cyan);
+        }
+
         /* ===== Checkout Button in Table ===== */
         .btn-small {
             padding: 6px 12px;
@@ -227,6 +250,12 @@
         }
 
         .btn-small:hover { background: #0891b2; }
+
+        .btn-small:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
 
         /* ===== Accessibility ===== */
         .sr-only {
@@ -300,14 +329,14 @@
         <section aria-labelledby="monitor-heading">
             <h2 id="monitor-heading">Live Session Monitor</h2>
             <div style="overflow-x: auto;">
-                <table role="grid" aria-label="Active gaming sessions">
+                <table role="table" aria-label="Active gaming sessions">
                     <thead>
-                        <tr role="row">
-                            <th role="columnheader">Name</th>
-                            <th role="columnheader">Package</th>
-                            <th role="columnheader">Time Remaining</th>
-                            <th role="columnheader">Status</th>
-                            <th role="columnheader">Action</th>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Package</th>
+                            <th scope="col">Time Remaining</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody id="sessionsTable"></tbody>
@@ -320,7 +349,7 @@
         // ===== Configuration Constants =====
         const CONFIG = {
             STORAGE_KEY: 'wii_sessions',
-            UPDATE_INTERVAL: 1000,
+            UPDATE_INTERVAL: 5000,  // Reduced from 1000ms to 5000ms for better performance
             UNLIMITED_MINUTES: 9999,
             MESSAGE_TIMEOUT: 4000,
             PHONE_REGEX: /^09\d{9}$/,
@@ -345,7 +374,14 @@
                     const trimmedSessions = sessions.slice(-CONFIG.MAX_SESSIONS_STORAGE);
                     localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(trimmedSessions));
                 } catch (error) {
-                    console.error('Error saving sessions:', error);
+                    if (error.name === 'QuotaExceededError') {
+                        console.error('Storage quota exceeded. Clearing old sessions.');
+                        // Clear and retry with current session only
+                        localStorage.removeItem(CONFIG.STORAGE_KEY);
+                        localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(trimmedSessions.slice(-10)));
+                    } else {
+                        console.error('Error saving sessions:', error);
+                    }
                 }
             },
 
@@ -373,6 +409,11 @@
                 return false;
             },
 
+            hasActiveSession(phone) {
+                const sessions = this.getSessions();
+                return sessions.some(s => s.phone === phone && !s.checkedOut);
+            },
+
             sanitize(text) {
                 const div = document.createElement('div');
                 div.textContent = text;
@@ -397,7 +438,10 @@
         // ===== Session Status Calculator =====
         const StatusCalculator = {
             calculate(session) {
-                if (session.checkedOut) return 'Checked-Out';
+                // Consistent return type: always return object
+                if (session.checkedOut) {
+                    return { status: 'Checked-Out', remaining: '—' };
+                }
 
                 if (session.minutes === CONFIG.UNLIMITED_MINUTES) {
                     return { status: 'Active', remaining: 'Unlimited' };
@@ -423,25 +467,57 @@
 
                 if (sessions.length === 0) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="5" style="text-align:center; color: var(--text-muted);">No active sessions</td>';
+                    const td = document.createElement('td');
+                    td.colSpan = '5';
+                    td.className = 'table-empty-message';
+                    td.textContent = 'No active sessions';
+                    tr.appendChild(td);
                     tbody.appendChild(tr);
                     return;
                 }
 
                 sessions.forEach(session => {
                     const { status, remaining } = StatusCalculator.calculate(session);
-                    const statusClass = `status-${status.toLowerCase().replace('-', '-')}`;
+                    
+                    // Map status to CSS class (consistent naming)
+                    const statusClassMap = {
+                        'Active': 'active',
+                        'Timeout': 'timeout',
+                        'Checked-Out': 'checked-out'
+                    };
+                    const statusClass = statusClassMap[status] || status.toLowerCase();
 
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><b>${session.name}</b></td>
-                        <td>${session.minutes === CONFIG.UNLIMITED_MINUTES ? 'Unlimited' : session.minutes + 'm'}</td>
-                        <td style="font-family:monospace; font-size:15px; color:var(--accent-cyan);">${remaining}</td>
-                        <td><span class="status-badge ${statusClass}">${status}</span></td>
-                        <td>
-                            ${!session.checkedOut ? `<button class="btn btn-small" data-session-id="${session.id}" onclick="UIController.checkoutSession('${session.id}')">Check Out</button>` : '—'}
-                        </td>
-                    `;
+                    
+                    const nameCell = tr.insertCell();
+                    nameCell.innerHTML = `<b>${SessionService.sanitize(session.name)}</b>`;
+
+                    const packageCell = tr.insertCell();
+                    packageCell.textContent = session.minutes === CONFIG.UNLIMITED_MINUTES ? 'Unlimited' : session.minutes + 'm';
+
+                    const timeCell = tr.insertCell();
+                    timeCell.className = 'time-display';
+                    timeCell.textContent = remaining;
+
+                    const statusCell = tr.insertCell();
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = `status-badge status-${statusClass}`;
+                    statusBadge.textContent = status;
+                    statusCell.appendChild(statusBadge);
+
+                    const actionCell = tr.insertCell();
+                    if (!session.checkedOut) {
+                        const checkoutBtn = document.createElement('button');
+                        checkoutBtn.className = 'btn btn-small';
+                        checkoutBtn.textContent = 'Check Out';
+                        checkoutBtn.dataset.sessionId = session.id;
+                        checkoutBtn.type = 'button';
+                        checkoutBtn.addEventListener('click', () => this.checkoutSession(session.id));
+                        actionCell.appendChild(checkoutBtn);
+                    } else {
+                        actionCell.textContent = '—';
+                    }
+
                     tbody.appendChild(tr);
                 });
             },
@@ -459,13 +535,13 @@
                 const msgDiv = document.getElementById('regMsg');
                 msgDiv.textContent = text;
                 msgDiv.classList.toggle('error', isError);
+                msgDiv.classList.add('show');
 
-                if (msgDiv.textContent) {
-                    setTimeout(() => {
-                        msgDiv.textContent = '';
-                        msgDiv.classList.remove('error');
-                    }, CONFIG.MESSAGE_TIMEOUT);
-                }
+                setTimeout(() => {
+                    msgDiv.classList.remove('show');
+                    msgDiv.textContent = '';
+                    msgDiv.classList.remove('error');
+                }, CONFIG.MESSAGE_TIMEOUT);
             },
 
             resetForm() {
@@ -495,6 +571,12 @@
             }
         };
 
+        // ===== Real-time Phone Validation =====
+        document.getElementById('phone').addEventListener('input', function() {
+            const isValid = CONFIG.PHONE_REGEX.test(this.value) || this.value.length === 0;
+            this.classList.toggle('input-invalid', !isValid && this.value.length > 0);
+        });
+
         // ===== Event Listeners =====
         document.getElementById('regForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -507,6 +589,12 @@
 
             if (!validation.valid) {
                 UIController.showMessage(validation.errors[0], true);
+                return;
+            }
+
+            // Check for duplicate active session
+            if (SessionService.hasActiveSession(phone)) {
+                UIController.showMessage('You already have an active session!', true);
                 return;
             }
 
@@ -526,8 +614,13 @@
         });
 
         // ===== Initialization =====
-        setInterval(() => UIController.updateTable(), CONFIG.UPDATE_INTERVAL);
+        let updateInterval = setInterval(() => UIController.updateTable(), CONFIG.UPDATE_INTERVAL);
         UIController.updateTable();
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (updateInterval) clearInterval(updateInterval);
+        });
     </script>
 </body>
 </html>
