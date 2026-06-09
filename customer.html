@@ -7,210 +7,383 @@
     <style>
         /* ===== CSS Variables ===== */
         :root {
+            --primary-purple: #7c3aed;
+            --primary-pink: #ec4899;
+            --primary-cyan: #06b6d4;
+            --primary-lime: #84cc16;
             --bg-dark: #0f172a;
-            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
             --border-color: #334155;
+            --text-primary: #f8fafc;
             --text-muted: #94a3b8;
-            --accent-green: #22c55e;
-            --accent-cyan: #06b6d4;
-            --error-red: #ef4444;
-            --transition: all 0.3s ease;
+            --accent-gold: #fbbf24;
+            --accent-red: #ef4444;
+            --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --glow: 0 0 20px rgba(124, 58, 237, 0.6);
         }
 
         /* ===== Base Styles ===== */
         * { box-sizing: border-box; }
+        
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-dark);
-            color: #f8fafc;
+            font-family: 'Segoe UI', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            color: var(--text-primary);
             margin: 0;
             padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* ===== Navigation ===== */
         nav {
-            background-color: var(--bg-secondary);
+            background: linear-gradient(90deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid var(--accent-green);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(124, 58, 237, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         nav .logo {
-            color: var(--accent-green);
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-size: 2rem;
+            font-weight: 900;
             text-decoration: none;
-            transition: var(--transition);
+            color: white;
+            text-shadow: 0 0 20px rgba(124, 58, 237, 0.8), 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 1;
+            letter-spacing: -1px;
         }
 
-        nav .logo:hover { opacity: 0.8; }
-        nav .logo span { color: var(--accent-cyan); }
+        nav .logo span {
+            color: var(--accent-gold);
+            display: inline-block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
 
         nav a.back-link {
-            color: var(--text-muted);
+            color: white;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
+            z-index: 1;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
             transition: var(--transition);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+            cursor: pointer;
         }
 
         nav a.back-link:hover {
-            background-color: rgba(34, 197, 94, 0.1);
-            color: var(--accent-green);
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
         }
 
         /* ===== Layout ===== */
         .container {
-            max-width: 1100px;
+            max-width: 1400px;
             margin: 2rem auto;
             padding: 0 1.5rem;
             display: grid;
             grid-template-columns: 1fr 1.5fr;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
+        @media (max-width: 1024px) {
+            .container { 
+                grid-template-columns: 1fr;
+                max-width: 800px;
+            }
         }
 
         /* ===== Sections ===== */
         section {
-            background: var(--bg-secondary);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 2px solid rgba(124, 58, 237, 0.3);
             height: fit-content;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(124, 58, 237, 0.2), inset 0 0 20px rgba(124, 58, 237, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        section > * {
+            position: relative;
+            z-index: 1;
         }
 
         h2 {
             color: white;
-            margin-top: 0;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            font-size: 1.5rem;
+            margin: 0 0 1.5rem 0;
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+            letter-spacing: 1px;
         }
 
         /* ===== Forms ===== */
-        form { display: flex; flex-direction: column; gap: 15px; }
+        form { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 1.5rem;
+        }
 
         label {
             font-size: 14px;
             color: var(--text-muted);
-            font-weight: 600;
+            font-weight: 700;
             display: flex;
             flex-direction: column;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         input, select {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(124, 58, 237, 0.4);
             color: white;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-top: 5px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 16px;
             transition: var(--transition);
+            font-weight: 600;
+        }
+
+        input::placeholder, select::placeholder {
+            color: rgba(148, 163, 184, 0.6);
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2), inset 0 0 10px rgba(6, 182, 212, 0.1);
+            transform: translateY(-2px);
         }
 
         input:invalid:not(:placeholder-shown) { 
-            border-color: var(--error-red); 
+            border-color: var(--accent-red); 
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
         }
 
         input.input-invalid {
-            border-color: var(--error-red);
+            border-color: var(--accent-red);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }
+
+        select {
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2306b6d4' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
         }
 
         /* ===== Buttons ===== */
         .btn {
-            padding: 12px;
+            padding: 16px;
             border: none;
-            border-radius: 6px;
-            font-weight: bold;
+            border-radius: 12px;
+            font-weight: 900;
             cursor: pointer;
             color: white;
-            font-size: 16px;
-            background: var(--accent-green);
+            font-size: 18px;
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
             transition: var(--transition);
-            margin-top: 10px;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
         }
 
-        .btn:hover { background: #16a34a; transform: translateY(-2px); }
-        .btn:active { transform: translateY(0); }
-        .btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover:not(:disabled) { 
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled { 
+            background: var(--text-muted);
+            cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: none;
+        }
+
+        .btn-small {
+            padding: 10px 16px;
+            font-size: 13px;
+            background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-lime) 100%);
+            color: #000;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-small:hover:not(:disabled) { 
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.6);
+        }
 
         /* ===== Table ===== */
         table {
             width: 100%;
-            border-collapse: collapse;
-            background: var(--bg-dark);
-            border-radius: 8px;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: transparent;
+            border-radius: 12px;
             overflow: hidden;
         }
 
         th, td {
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 16px;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.3);
             text-align: left;
         }
 
         th {
-            background: var(--bg-secondary);
-            color: var(--accent-cyan);
-            font-weight: 600;
-            font-size: 13px;
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--primary-cyan);
+            font-weight: 900;
+            font-size: 12px;
             text-transform: uppercase;
+            letter-spacing: 1.5px;
         }
 
-        tr:hover { background-color: rgba(34, 197, 94, 0.05); }
+        tr:hover { 
+            background-color: rgba(124, 58, 237, 0.1);
+            transform: translateX(4px);
+            transition: var(--transition);
+        }
+
+        td b {
+            color: var(--accent-gold);
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
 
         /* ===== Status Styles ===== */
         .status-badge {
-            font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 4px;
+            font-weight: 900;
+            padding: 8px 16px;
+            border-radius: 8px;
             font-size: 12px;
             display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .status-badge.status-active {
-            color: #22c55e;
-            background-color: rgba(34, 197, 94, 0.1);
+            color: #000;
+            background: linear-gradient(135deg, var(--primary-lime) 0%, #60a5fa 100%);
+            animation: glow-active 2s ease-in-out infinite;
+        }
+
+        @keyframes glow-active {
+            0%, 100% { box-shadow: 0 4px 12px rgba(132, 204, 22, 0.4); }
+            50% { box-shadow: 0 4px 20px rgba(132, 204, 22, 0.8); }
         }
 
         .status-badge.status-timeout {
-            color: #ef4444;
-            background-color: rgba(239, 68, 68, 0.1);
-            animation: flash 1s infinite alternate;
+            color: white;
+            background: linear-gradient(135deg, var(--accent-red) 0%, #f97316 100%);
+            animation: pulse-timeout 0.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse-timeout {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .status-badge.status-checked-out {
-            color: #64748b;
-            background-color: rgba(100, 116, 139, 0.1);
+            color: white;
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
         }
 
         /* ===== Messaging ===== */
         .msg {
-            color: var(--accent-green);
-            font-weight: bold;
-            margin-top: 10px;
+            color: white;
+            font-weight: 900;
+            margin-top: 1rem;
             text-align: center;
-            padding: 12px;
-            background: rgba(34, 197, 94, 0.1);
-            border-radius: 6px;
-            border-left: 4px solid var(--accent-green);
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(132, 204, 22, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-lime);
             min-height: 20px;
             display: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .msg.show {
@@ -218,43 +391,28 @@
         }
 
         .msg.error {
-            color: var(--error-red);
-            background: rgba(239, 68, 68, 0.1);
-            border-left-color: var(--error-red);
-        }
-
-        /* ===== Animations ===== */
-        @keyframes flash {
-            from { opacity: 1; }
-            to { opacity: 0.4; }
+            color: white;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(244, 63, 94, 0.2) 100%);
+            border-left-color: var(--accent-red);
         }
 
         /* ===== Table Utilities ===== */
         .table-empty-message {
             text-align: center;
             color: var(--text-muted);
+            padding: 2rem;
+            font-size: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .time-display {
-            font-family: monospace;
-            font-size: 15px;
-            color: var(--accent-cyan);
-        }
-
-        /* ===== Checkout Button in Table ===== */
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-            background: var(--accent-cyan);
-            color: var(--bg-dark);
-        }
-
-        .btn-small:hover { background: #0891b2; }
-
-        .btn-small:disabled {
-            background: var(--text-muted);
-            cursor: not-allowed;
-            opacity: 0.5;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: var(--accent-gold);
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
         }
 
         /* ===== Accessibility ===== */
@@ -269,25 +427,70 @@
             white-space: nowrap;
             border-width: 0;
         }
+
+        /* ===== Package Cards (Optional Visual Enhancement) ===== */
+        .package-label {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(124, 58, 237, 0.3);
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 4px;
+            color: var(--primary-cyan);
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav .logo {
+                font-size: 1.5rem;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 12px;
+            }
+
+            .btn {
+                padding: 14px;
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
     <nav role="navigation" aria-label="Main navigation">
-        <a href="index.html" class="logo">Wii<span>Jump</span> — Kiosk</a>
+        <a href="index.html" class="logo">Wii<span>Jump</span></a>
         <a href="index.html" class="back-link">← Main Menu</a>
     </nav>
 
     <div class="container">
         <!-- Registration Section -->
         <section aria-labelledby="registration-heading">
-            <h2 id="registration-heading">Guest Registration</h2>
+            <h2 id="registration-heading">🎮 Jump In!</h2>
             <form id="regForm" novalidate>
                 <label for="firstName">
-                    First Name
+                    👤 Your Name
                     <input
                         type="text"
                         id="firstName"
-                        placeholder="Enter your name"
+                        placeholder="What's your name, player?"
                         maxlength="50"
                         required
                         aria-required="true"
@@ -297,7 +500,7 @@
                 </label>
 
                 <label for="phone">
-                    Phone Number
+                    📱 Phone Number
                     <input
                         type="tel"
                         id="phone"
@@ -311,32 +514,32 @@
                 </label>
 
                 <label for="packageMinutes">
-                    Select Pass Package
+                    ⏱️ Select Your Pass
                     <select id="packageMinutes" required aria-required="true">
                         <option value="">-- Choose a package --</option>
-                        <option value="60">1 Hour Access Pass</option>
-                        <option value="120">2 Hour Access Pass</option>
-                        <option value="9999">Unlimited Session Pass</option>
+                        <option value="60">⭐ 1 Hour Access Pass</option>
+                        <option value="120">⭐⭐ 2 Hour Access Pass</option>
+                        <option value="9999">🌟 Unlimited Session Pass</option>
                     </select>
                 </label>
 
-                <button type="submit" class="btn" id="submitBtn">Check In & Play</button>
+                <button type="submit" class="btn" id="submitBtn">🚀 Check In & Play</button>
             </form>
             <div id="regMsg" class="msg" role="alert" aria-live="polite"></div>
         </section>
 
         <!-- Live Session Monitor Section -->
         <section aria-labelledby="monitor-heading">
-            <h2 id="monitor-heading">Live Session Monitor</h2>
+            <h2 id="monitor-heading">🏆 Active Players</h2>
             <div style="overflow-x: auto;">
                 <table role="table" aria-label="Active gaming sessions">
                     <thead>
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Package</th>
-                            <th scope="col">Time Remaining</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Action</th>
+                            <th scope="col">👤 Player</th>
+                            <th scope="col">🎮 Package</th>
+                            <th scope="col">⏱️ Time Left</th>
+                            <th scope="col">⚡ Status</th>
+                            <th scope="col">🎯 Action</th>
                         </tr>
                     </thead>
                     <tbody id="sessionsTable"></tbody>
@@ -349,7 +552,7 @@
         // ===== Configuration Constants =====
         const CONFIG = {
             STORAGE_KEY: 'wii_sessions',
-            UPDATE_INTERVAL: 5000,  // Reduced from 1000ms to 5000ms for better performance
+            UPDATE_INTERVAL: 5000,
             UNLIMITED_MINUTES: 9999,
             MESSAGE_TIMEOUT: 4000,
             PHONE_REGEX: /^09\d{9}$/,
@@ -370,13 +573,11 @@
 
             saveSessions(sessions) {
                 try {
-                    // Prevent unbounded storage growth
                     const trimmedSessions = sessions.slice(-CONFIG.MAX_SESSIONS_STORAGE);
                     localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(trimmedSessions));
                 } catch (error) {
                     if (error.name === 'QuotaExceededError') {
                         console.error('Storage quota exceeded. Clearing old sessions.');
-                        // Clear and retry with current session only
                         localStorage.removeItem(CONFIG.STORAGE_KEY);
                         localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(trimmedSessions.slice(-10)));
                     } else {
@@ -389,7 +590,7 @@
                 return {
                     id: 'SESS-' + Date.now(),
                     name: this.sanitize(name),
-                    phone: phone, // In production: hash or don't store
+                    phone: phone,
                     minutes: parseInt(packageMinutes),
                     checkIn: Date.now(),
                     status: 'Active',
@@ -438,13 +639,12 @@
         // ===== Session Status Calculator =====
         const StatusCalculator = {
             calculate(session) {
-                // Consistent return type: always return object
                 if (session.checkedOut) {
                     return { status: 'Checked-Out', remaining: '—' };
                 }
 
                 if (session.minutes === CONFIG.UNLIMITED_MINUTES) {
-                    return { status: 'Active', remaining: 'Unlimited' };
+                    return { status: 'Active', remaining: '∞' };
                 }
 
                 const elapsed = Date.now() - session.checkIn;
@@ -470,7 +670,7 @@
                     const td = document.createElement('td');
                     td.colSpan = '5';
                     td.className = 'table-empty-message';
-                    td.textContent = 'No active sessions';
+                    td.textContent = '🎪 No active players yet. Be the first!';
                     tr.appendChild(td);
                     tbody.appendChild(tr);
                     return;
@@ -479,7 +679,6 @@
                 sessions.forEach(session => {
                     const { status, remaining } = StatusCalculator.calculate(session);
                     
-                    // Map status to CSS class (consistent naming)
                     const statusClassMap = {
                         'Active': 'active',
                         'Timeout': 'timeout',
@@ -493,7 +692,10 @@
                     nameCell.innerHTML = `<b>${SessionService.sanitize(session.name)}</b>`;
 
                     const packageCell = tr.insertCell();
-                    packageCell.textContent = session.minutes === CONFIG.UNLIMITED_MINUTES ? 'Unlimited' : session.minutes + 'm';
+                    const packageDisplay = session.minutes === CONFIG.UNLIMITED_MINUTES 
+                        ? '🌟 Unlimited' 
+                        : `${session.minutes}m`;
+                    packageCell.textContent = packageDisplay;
 
                     const timeCell = tr.insertCell();
                     timeCell.className = 'time-display';
@@ -509,13 +711,13 @@
                     if (!session.checkedOut) {
                         const checkoutBtn = document.createElement('button');
                         checkoutBtn.className = 'btn btn-small';
-                        checkoutBtn.textContent = 'Check Out';
+                        checkoutBtn.textContent = '✓ Check Out';
                         checkoutBtn.dataset.sessionId = session.id;
                         checkoutBtn.type = 'button';
                         checkoutBtn.addEventListener('click', () => this.checkoutSession(session.id));
                         actionCell.appendChild(checkoutBtn);
                     } else {
-                        actionCell.textContent = '—';
+                        actionCell.innerHTML = '<span style="color: #64748b; font-weight: 700;">✓ Done</span>';
                     }
 
                     tbody.appendChild(tr);
@@ -524,10 +726,10 @@
 
             checkoutSession(sessionId) {
                 if (SessionService.checkoutSession(sessionId)) {
-                    this.showMessage('Session checked out successfully!', false);
+                    this.showMessage('🎉 Player checked out! Thanks for jumping!', false);
                     this.updateTable();
                 } else {
-                    this.showMessage('Error checking out session', true);
+                    this.showMessage('⚠️ Error checking out session', true);
                 }
             },
 
@@ -556,15 +758,15 @@
                 const errors = [];
 
                 if (!firstName || firstName.trim().length === 0) {
-                    errors.push('First name is required');
+                    errors.push('🎮 Enter your name, player!');
                 }
 
                 if (!CONFIG.PHONE_REGEX.test(phone)) {
-                    errors.push('Phone number must be 09XXXXXXXXX format');
+                    errors.push('📱 Phone number must be 09XXXXXXXXX format');
                 }
 
                 if (!packageMinutes) {
-                    errors.push('Please select a pass package');
+                    errors.push('⏱️ Choose a pass package');
                 }
 
                 return { valid: errors.length === 0, errors };
@@ -592,9 +794,8 @@
                 return;
             }
 
-            // Check for duplicate active session
             if (SessionService.hasActiveSession(phone)) {
-                UIController.showMessage('You already have an active session!', true);
+                UIController.showMessage('👤 You already have an active session!', true);
                 return;
             }
 
@@ -604,12 +805,12 @@
                 sessions.push(newSession);
                 SessionService.saveSessions(sessions);
 
-                UIController.showMessage('Registration complete! Jump on in.', false);
+                UIController.showMessage('🚀 Welcome! Jump on in!', false);
                 UIController.resetForm();
                 UIController.updateTable();
             } catch (error) {
                 console.error('Registration error:', error);
-                UIController.showMessage('An error occurred during registration', true);
+                UIController.showMessage('❌ Registration error occurred', true);
             }
         });
 
@@ -617,7 +818,6 @@
         let updateInterval = setInterval(() => UIController.updateTable(), CONFIG.UPDATE_INTERVAL);
         UIController.updateTable();
 
-        // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             if (updateInterval) clearInterval(updateInterval);
         });
