@@ -135,6 +135,10 @@
             color: white;
             transition: background-color 0.2s, opacity 0.2s;
             font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .btn:hover:not(:disabled) {
@@ -201,7 +205,7 @@
             display: inline-block;
             width: 14px;
             height: 14px;
-            border: 2px solid #3b82f6;
+            border: 2px solid #f8fafc;
             border-top-color: transparent;
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
@@ -223,6 +227,32 @@
             font-style: italic;
         }
 
+        /* Dialog/Modal Styles */
+        dialog {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #f8fafc;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        dialog h3 {
+            margin-top: 0;
+            color: white;
+        }
+
+        dialog .dialog-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
         @media (max-width: 768px) {
             nav {
                 flex-direction: column;
@@ -236,6 +266,10 @@
             th, td {
                 padding: 8px 10px;
             }
+
+            form {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -243,7 +277,7 @@
     <nav>
         <a href="index.html" class="logo">Wii<span>Jump</span> — Staff</a>
         <div style="display: flex; gap: 20px; align-items: center;">
-            <a id="logoutLink" class="back-link" onclick="handleLogout()" style="display:none; color: #ef4444;" role="button" tabindex="0">Sign Out</a>
+            <a id="logoutLink" class="back-link" role="button" tabindex="0" style="display:none; color: #ef4444;" aria-label="Sign out">Sign Out</a>
             <a href="index.html" class="back-link">← Main Menu</a>
         </div>
     </nav>
@@ -253,7 +287,7 @@
         <div id="loginSection">
             <section>
                 <h2>Staff Gate Authentication</h2>
-                <form id="loginForm">
+                <form id="loginForm" novalidate>
                     <label for="username">Username
                         <input 
                             type="text" 
@@ -264,7 +298,9 @@
                             autocomplete="username"
                             minlength="3"
                             maxlength="50"
+                            aria-describedby="username-hint"
                         >
+                        <small id="username-hint" style="color: #94a3b8; font-weight: normal;">Required: 3-50 characters</small>
                     </label>
                     <label for="password">Password
                         <input 
@@ -276,10 +312,12 @@
                             autocomplete="current-password"
                             minlength="6"
                             maxlength="100"
+                            aria-describedby="password-hint"
                         >
+                        <small id="password-hint" style="color: #94a3b8; font-weight: normal;">Required: minimum 6 characters</small>
                     </label>
-                    <button type="submit" class="btn btn-blue" id="loginBtn">Authorize Entry</button>
-                    <div id="loginError" class="alert alert-error" role="alert"></div>
+                    <button type="submit" class="btn btn-blue" id="loginBtn" aria-label="Submit login credentials">Authorize Entry</button>
+                    <div id="loginError" class="alert alert-error" role="alert" aria-live="polite"></div>
                 </form>
             </section>
         </div>
@@ -304,13 +342,13 @@
                         <tbody id="staffTable"></tbody>
                     </table>
                 </div>
-                <div id="noDataMessage" class="no-data" style="display: none;">No active sessions</div>
-                <div id="tableError" class="alert alert-error" role="alert"></div>
+                <div id="noDataMessage" class="no-data" style="display: none;" role="status">No active sessions</div>
+                <div id="tableError" class="alert alert-error" role="alert" aria-live="polite"></div>
             </section>
 
             <section style="max-width: 400px;">
                 <h2>Change Session Password</h2>
-                <form id="changePasswordForm">
+                <form id="changePasswordForm" novalidate>
                     <label for="currPass">Current Password
                         <input 
                             type="password" 
@@ -320,7 +358,9 @@
                             required 
                             autocomplete="current-password"
                             minlength="6"
+                            aria-describedby="currPass-hint"
                         >
+                        <small id="currPass-hint" style="color: #94a3b8; font-weight: normal;">Your current staff password</small>
                     </label>
                     <label for="newPass">New Secret Password
                         <input 
@@ -331,26 +371,56 @@
                             required 
                             autocomplete="new-password"
                             minlength="6"
+                            aria-describedby="newPass-hint"
                         >
+                        <small id="newPass-hint" style="color: #94a3b8; font-weight: normal;">Minimum 6 characters, must be different from current</small>
                     </label>
-                    <button type="submit" class="btn btn-blue" id="passBtn">Update Security Credentials</button>
-                    <div id="passMsg" class="alert" role="alert"></div>
+                    <button type="submit" class="btn btn-blue" id="passBtn" aria-label="Update staff password">Update Security Credentials</button>
+                    <div id="passMsg" class="alert" role="alert" aria-live="polite"></div>
                 </form>
             </section>
         </div>
     </div>
 
+    <!-- Logout Confirmation Dialog -->
+    <dialog id="logoutDialog">
+        <h3>Confirm Sign Out</h3>
+        <p>Are you sure you want to sign out? You'll need to log in again to access the staff panel.</p>
+        <div class="dialog-actions">
+            <button class="btn btn-blue" id="cancelLogoutBtn" aria-label="Cancel logout">Cancel</button>
+            <button class="btn btn-red" id="confirmLogoutBtn" aria-label="Confirm logout">Sign Out</button>
+        </div>
+    </dialog>
+
+    <!-- Terminate Session Confirmation Dialog -->
+    <dialog id="terminateDialog">
+        <h3>Confirm Session Termination</h3>
+        <p>Are you sure you want to check out session <strong id="terminateSessionId"></strong>? This action cannot be undone.</p>
+        <div class="dialog-actions">
+            <button class="btn btn-blue" id="cancelTerminateBtn" aria-label="Cancel termination">Cancel</button>
+            <button class="btn btn-red" id="confirmTerminateBtn" aria-label="Confirm termination">Terminate</button>
+        </div>
+    </dialog>
+
     <script>
-        // Configuration
+        // ===== Configuration =====
         const CONFIG = {
             STORAGE_KEY_PASS: 'staff_pass',
             STORAGE_KEY_SESSIONS: 'wii_sessions',
             STORAGE_KEY_AUTH: 'staff_session',
-            UPDATE_INTERVAL: 1000,
-            DEFAULT_USERNAME: 'staff'
+            UPDATE_INTERVAL: 5000,  // Increased from 1000ms to reduce repaints
+            SESSION_TIMEOUT: 30 * 60 * 1000, // 30 minutes
+            MAX_LOGIN_ATTEMPTS: 5,
+            LOCKOUT_DURATION: 15 * 60 * 1000 // 15 minutes
         };
 
-        // Safe JSON parsing
+        // ===== Session State =====
+        let loginAttempts = 0;
+        let lockoutUntil = null;
+        let updateInterval = null;
+        let pendingTerminateId = null;
+
+        // ===== Utility: Safe JSON Parsing =====
         function safeJsonParse(jsonString, fallback = null) {
             try {
                 return JSON.parse(jsonString);
@@ -360,20 +430,36 @@
             }
         }
 
-        // Initialize default password on first load
-        function initializeDefaults() {
-            if (!localStorage.getItem(CONFIG.STORAGE_KEY_PASS)) {
-                localStorage.setItem(CONFIG.STORAGE_KEY_PASS, 'staff123');
-            }
+        // ===== Utility: Sanitize HTML =====
+        function sanitizeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
-        // Show alert message
+        // ===== Utility: Validate Session Data =====
+        function validateSession(session) {
+            if (!session || typeof session !== 'object') return false;
+            if (typeof session.id !== 'string') return false;
+            if (typeof session.name !== 'string') return false;
+            if (typeof session.checkIn !== 'number') return false;
+            if (typeof session.minutes !== 'number') return false;
+            return true;
+        }
+
+        // ===== Utility: Generate Secure Token =====
+        function generateSecureToken() {
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        // ===== Alert Management =====
         function showAlert(elementId, message, type = 'error') {
             const element = document.getElementById(elementId);
             if (element) {
                 element.textContent = message;
                 element.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'} show`;
-                // Auto-hide success messages after 4 seconds
                 if (type === 'success') {
                     setTimeout(() => {
                         element.classList.remove('show');
@@ -382,7 +468,6 @@
             }
         }
 
-        // Clear alert
         function clearAlert(elementId) {
             const element = document.getElementById(elementId);
             if (element) {
@@ -391,23 +476,35 @@
             }
         }
 
-        // Sanitize HTML to prevent XSS
-        function sanitizeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        // ===== Time Formatting =====
+        function formatTimeRemaining(milliseconds) {
+            if (milliseconds <= 0) return '00:00:00';
+            
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
-        // Login handler
+        // ===== Login Handler =====
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             clearAlert('loginError');
+
+            // Check lockout status
+            if (lockoutUntil && Date.now() < lockoutUntil) {
+                const remainingMinutes = Math.ceil((lockoutUntil - Date.now()) / 1000 / 60);
+                showAlert('loginError', `Too many login attempts. Try again in ${remainingMinutes} minute(s).`);
+                return;
+            }
 
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
             const loginBtn = document.getElementById('loginBtn');
 
-            // Basic validation
+            // Validation
             if (!user || !pass) {
                 showAlert('loginError', 'Username and password are required.');
                 return;
@@ -415,29 +512,43 @@
 
             // Disable button during submission
             loginBtn.disabled = true;
-            loginBtn.innerHTML = '<span class="loading-spinner"></span> Authenticating...';
+            const originalText = loginBtn.textContent;
+            loginBtn.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> <span>Authenticating...</span>';
 
-            try {
-                const correctPass = localStorage.getItem(CONFIG.STORAGE_KEY_PASS);
+            // Simulate auth delay to prevent timing attacks
+            setTimeout(() => {
+                try {
+                    const correctPass = localStorage.getItem(CONFIG.STORAGE_KEY_PASS);
 
-                if (user === CONFIG.DEFAULT_USERNAME && pass === correctPass) {
-                    // Create a simple session token (not cryptographically secure, but better than plain text)
-                    const sessionToken = btoa(`${Date.now()}-${Math.random()}`);
-                    sessionStorage.setItem(CONFIG.STORAGE_KEY_AUTH, sessionToken);
-                    checkSession();
-                } else {
-                    showAlert('loginError', 'Invalid username or password.');
+                    if (user === 'staff' && pass === correctPass) {
+                        // Valid credentials
+                        loginAttempts = 0;
+                        lockoutUntil = null;
+                        const sessionToken = generateSecureToken();
+                        sessionStorage.setItem(CONFIG.STORAGE_KEY_AUTH, sessionToken);
+                        sessionStorage.setItem(CONFIG.STORAGE_KEY_AUTH + '_expires', Date.now() + CONFIG.SESSION_TIMEOUT);
+                        checkSession();
+                    } else {
+                        // Invalid credentials
+                        loginAttempts++;
+                        if (loginAttempts >= CONFIG.MAX_LOGIN_ATTEMPTS) {
+                            lockoutUntil = Date.now() + CONFIG.LOCKOUT_DURATION;
+                            showAlert('loginError', 'Too many failed attempts. Account locked for 15 minutes.');
+                        } else {
+                            showAlert('loginError', `Invalid credentials. Attempts remaining: ${CONFIG.MAX_LOGIN_ATTEMPTS - loginAttempts}`);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showAlert('loginError', 'An error occurred during authentication.');
+                } finally {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = originalText;
                 }
-            } catch (error) {
-                console.error('Login error:', error);
-                showAlert('loginError', 'An error occurred during authentication.');
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Authorize Entry';
-            }
+            }, 600);
         });
 
-        // Password change handler
+        // ===== Password Change Handler =====
         document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
             e.preventDefault();
             clearAlert('passMsg');
@@ -462,69 +573,122 @@
                 return;
             }
 
-            try {
-                const stored = localStorage.getItem(CONFIG.STORAGE_KEY_PASS);
+            passBtn.disabled = true;
+            const originalText = passBtn.textContent;
+            passBtn.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> <span>Updating...</span>';
 
-                if (curr === stored) {
-                    localStorage.setItem(CONFIG.STORAGE_KEY_PASS, nxt);
-                    showAlert('passMsg', 'Password updated successfully!', 'success');
-                    this.reset();
-                } else {
-                    showAlert('passMsg', 'Current password does not match.', 'error');
+            setTimeout(() => {
+                try {
+                    const stored = localStorage.getItem(CONFIG.STORAGE_KEY_PASS);
+
+                    if (curr === stored) {
+                        localStorage.setItem(CONFIG.STORAGE_KEY_PASS, nxt);
+                        showAlert('passMsg', 'Password updated successfully!', 'success');
+                        this.reset();
+                    } else {
+                        showAlert('passMsg', 'Current password does not match.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Password change error:', error);
+                    showAlert('passMsg', 'An error occurred while updating password.', 'error');
+                } finally {
+                    passBtn.disabled = false;
+                    passBtn.textContent = originalText;
                 }
-            } catch (error) {
-                console.error('Password change error:', error);
-                showAlert('passMsg', 'An error occurred while updating password.', 'error');
-            }
+            }, 600);
         });
 
-        // Check session and show appropriate section
+        // ===== Session Management =====
         function checkSession() {
-            const isAuthenticated = sessionStorage.getItem(CONFIG.STORAGE_KEY_AUTH);
+            const token = sessionStorage.getItem(CONFIG.STORAGE_KEY_AUTH);
+            const expiresAt = sessionStorage.getItem(CONFIG.STORAGE_KEY_AUTH + '_expires');
             const loginSection = document.getElementById('loginSection');
             const dashboardSection = document.getElementById('dashboardSection');
             const logoutLink = document.getElementById('logoutLink');
 
-            if (isAuthenticated) {
+            // Check if session is valid and not expired
+            if (token && expiresAt && Date.now() < parseInt(expiresAt)) {
                 loginSection.style.display = 'none';
                 dashboardSection.style.display = 'block';
                 logoutLink.style.display = 'block';
                 updateStaffView();
             } else {
-                loginSection.style.display = 'block';
-                dashboardSection.style.display = 'none';
-                logoutLink.style.display = 'none';
-            }
-        }
-
-        // Handle logout with confirmation
-        function handleLogout() {
-            if (confirm('Are you sure you want to sign out?')) {
                 logout();
             }
         }
 
-        // Logout handler
         function logout() {
             sessionStorage.removeItem(CONFIG.STORAGE_KEY_AUTH);
-            checkSession();
+            sessionStorage.removeItem(CONFIG.STORAGE_KEY_AUTH + '_expires');
+            
+            const loginSection = document.getElementById('loginSection');
+            const dashboardSection = document.getElementById('dashboardSection');
+            const logoutLink = document.getElementById('logoutLink');
+            
+            loginSection.style.display = 'block';
+            dashboardSection.style.display = 'none';
+            logoutLink.style.display = 'none';
+            
             clearAlert('loginError');
             document.getElementById('loginForm').reset();
         }
 
-        // Format time duration
-        function formatTimeRemaining(milliseconds) {
-            if (milliseconds <= 0) return '00:00:00';
-            
-            const totalSeconds = Math.floor(milliseconds / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
+        // ===== Logout Dialog Handler =====
+        document.getElementById('logoutLink').addEventListener('click', function() {
+            document.getElementById('logoutDialog').showModal();
+        });
 
-            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        document.getElementById('cancelLogoutBtn').addEventListener('click', function() {
+            document.getElementById('logoutDialog').close();
+        });
+
+        document.getElementById('confirmLogoutBtn').addEventListener('click', function() {
+            document.getElementById('logoutDialog').close();
+            logout();
+        });
+
+        // ===== Terminate Dialog Handler =====
+        document.getElementById('cancelTerminateBtn').addEventListener('click', function() {
+            document.getElementById('terminateDialog').close();
+            pendingTerminateId = null;
+        });
+
+        document.getElementById('confirmTerminateBtn').addEventListener('click', function() {
+            document.getElementById('terminateDialog').close();
+            if (pendingTerminateId) {
+                terminateSession(pendingTerminateId);
+                pendingTerminateId = null;
+            }
+        });
+
+        // ===== Terminate Session =====
+        function showTerminateDialog(sessionId) {
+            pendingTerminateId = sessionId;
+            document.getElementById('terminateSessionId').textContent = sanitizeHtml(sessionId);
+            document.getElementById('terminateDialog').showModal();
         }
 
-        // Update staff view
+        function terminateSession(id) {
+            try {
+                const sessions = safeJsonParse(localStorage.getItem(CONFIG.STORAGE_KEY_SESSIONS), []);
+                const target = sessions.find(item => validateSession(item) && item.id === id);
+
+                if (target) {
+                    target.status = 'Checked-Out';
+                    target.checkedOut = true;
+                    localStorage.setItem(CONFIG.STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
+                    updateStaffView();
+                    showAlert('tableError', 'Session checked out successfully.', 'success');
+                } else {
+                    showAlert('tableError', 'Session not found.', 'error');
+                }
+            } catch (error) {
+                console.error('Error terminating session:', error);
+                showAlert('tableError', 'Error terminating session.', 'error');
+            }
+        }
+
+        // ===== Update Staff View =====
         function updateStaffView() {
             if (!sessionStorage.getItem(CONFIG.STORAGE_KEY_AUTH)) return;
 
@@ -551,17 +715,16 @@
 
                 sessions.forEach(s => {
                     try {
-                        // Validate session data
-                        if (!s || typeof s !== 'object') return;
+                        if (!validateSession(s)) return;
 
                         let remainingStr = '00:00:00';
                         let currentStatus = s.status || 'Unknown';
 
                         // Calculate remaining time
-                        if (currentStatus !== 'Checked-Out') {
+                        if (!s.checkedOut && currentStatus !== 'Checked-Out') {
                             if (s.minutes === 9999) {
                                 remainingStr = 'Unlimited';
-                            } else if (typeof s.checkIn === 'number' && typeof s.minutes === 'number') {
+                            } else {
                                 const elapsed = Date.now() - s.checkIn;
                                 const allowed = s.minutes * 60 * 1000;
                                 const remainingMs = allowed - elapsed;
@@ -583,8 +746,8 @@
                         const sanitizedPhone = sanitizeHtml(s.phone || 'N/A');
 
                         let actionCell = '';
-                        if (currentStatus !== 'Checked-Out') {
-                            actionCell = `<button class="btn btn-red" onclick="confirmTerminate('${sanitizedId}')" aria-label="Manual check-out for session ${sanitizedId}">Manual Check-Out</button>`;
+                        if (!s.checkedOut && currentStatus !== 'Checked-Out') {
+                            actionCell = `<button class="btn btn-red" onclick="showTerminateDialog('${sanitizedId}')" aria-label="Check out session ${sanitizedId}">Manual Check-Out</button>`;
                         } else {
                             actionCell = `<span style="color:#475569">Archived</span>`;
                         }
@@ -609,50 +772,35 @@
             }
         }
 
-        // Confirm before terminating session
-        function confirmTerminate(id) {
-            if (confirm(`Terminate session ${id}?`)) {
-                terminateSession(id);
+        // ===== Initialize =====
+        function initializeApp() {
+            // Initialize password only if it doesn't exist
+            if (!localStorage.getItem(CONFIG.STORAGE_KEY_PASS)) {
+                // Require admin to set password on first use
+                console.warn('No staff password configured. Please set one immediately.');
+                showAlert('loginError', 'System requires password setup. Contact administrator.', 'error');
             }
-        }
 
-        // Terminate session
-        function terminateSession(id) {
-            try {
-                const sessions = safeJsonParse(localStorage.getItem(CONFIG.STORAGE_KEY_SESSIONS), []);
-                const target = sessions.find(item => item && item.id === id);
+            checkSession();
 
-                if (target) {
-                    target.status = 'Checked-Out';
-                    localStorage.setItem(CONFIG.STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
+            // Set up periodic updates (increased from 1 second to 5 seconds)
+            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(() => {
+                if (sessionStorage.getItem(CONFIG.STORAGE_KEY_AUTH)) {
                     updateStaffView();
+                } else {
+                    checkSession();
                 }
-            } catch (error) {
-                console.error('Error terminating session:', error);
-                showAlert('tableError', 'Error terminating session.', 'error');
-            }
+            }, CONFIG.UPDATE_INTERVAL);
         }
 
-        // Initialize
-        initializeDefaults();
-        checkSession();
-
-        // Update staff view periodically
-        const updateInterval = setInterval(() => {
-            if (sessionStorage.getItem(CONFIG.STORAGE_KEY_AUTH)) {
-                updateStaffView();
-            }
-        }, CONFIG.UPDATE_INTERVAL);
-
-        // Cleanup on page unload
+        // ===== Cleanup =====
         window.addEventListener('beforeunload', () => {
-            clearInterval(updateInterval);
+            if (updateInterval) clearInterval(updateInterval);
         });
 
-        // Handle logout on tab close (optional)
-        window.addEventListener('unload', () => {
-            sessionStorage.removeItem(CONFIG.STORAGE_KEY_AUTH);
-        });
+        // ===== Start App =====
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>
