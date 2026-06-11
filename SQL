@@ -1,0 +1,35 @@
+type Game @table {
+  title: String!
+  genre: String!
+  totalCopies: Int!
+  availableCopies: Int!
+  description: String
+  releaseYear: Int
+}
+
+type Customer @table {
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  address: String
+}
+
+type Rental @table {
+  game: Game!
+  customer: Customer!
+  rentalDate: Date!
+  dueDate: Date!
+  status: String!
+  returnDate: Date
+  lateFee: Float
+}
+
+type Employee @table {
+  firstName: String!
+  lastName: String!
+  username: String!
+  passwordHash: String!
+  role: String!
+  email: String
+}
