@@ -99,7 +99,15 @@ function handleAdminLogin(e) {
         return;
     }
 
-    const username = document.getElementById('username').value.trim();
+    
+    cconst storedUsername = localStorage.getItem('admin_user');
+const storedPassword = localStorage.getItem(ADMIN_CONFIG.STORAGE_KEY_PASS);
+
+if (username === storedUsername && password === storedPassword) {
+    // Valid credentials
+    ...
+}
+const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
     const loginBtn = document.getElementById('loginBtn');
 
@@ -240,6 +248,21 @@ function handlePasswordChange(e) {
             changePassBtn.textContent = originalText;
         }
     }, 600);
+}
+
+// ===== Initialize Admin Credentials on First Load =====
+function initializeAdminCredentials() {
+    if (!localStorage.getItem('admin_user')) {
+        // Set default admin username
+        localStorage.setItem('admin_user', 'admin');
+        console.warn('Admin system initialized with default username: admin');
+    }
+    if (!localStorage.getItem(ADMIN_CONFIG.STORAGE_KEY_PASS)) {
+        // Set default admin password
+        localStorage.setItem(ADMIN_CONFIG.STORAGE_KEY_PASS, 'Admin123!');
+        console.warn('Admin system initialized with default password: Admin123!');
+        console.warn('⚠️ IMPORTANT: Change this password immediately in production!');
+    }
 }
 
 // ===== Export Data to CSV =====
