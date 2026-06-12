@@ -18,7 +18,7 @@ function initializeAdminPassword() {
     if (!localStorage.getItem(ADMIN_CONFIG.STORAGE_KEY_PASS)) {
         // Set default admin password on first use
         localStorage.setItem(ADMIN_CONFIG.STORAGE_KEY_PASS, 'Admin123!');
-        console.warn('Admin system initialized with default password: Admin123!');
+        console.warn('Admin system initialized with default password: 'Admin123!');
         console.warn('⚠️ IMPORTANT: Change this password immediately in production!');
     }
 }
